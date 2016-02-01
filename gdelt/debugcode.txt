@@ -1,0 +1,3 @@
+#df1 = sqlContext.load("com.databricks.spark.csv", path="gdelt/20151105.export.CSV") #, format="csv")
+#df1 = sqlContext.read.format('com.databricks.spark.csv').options(header='true', inferschema='true', delimiter ="\t").load("gdelt/20151105.export.CSV")
+#df1.first()
