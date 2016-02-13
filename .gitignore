@@ -97,3 +97,5 @@ tmplocaldata/
 info/
 metastore_db/
 gedlt/
+private/
+viz/
