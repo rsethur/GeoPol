@@ -99,3 +99,5 @@ metastore_db/
 gedlt/
 private/
 viz/
+leaflet(test)/
+slider/

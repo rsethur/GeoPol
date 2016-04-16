@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>	
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />	
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+    <link rel="stylesheet" href="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-0.7.7/leaflet.css">
+    <link rel="stylesheet" href="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.css"">
+    <link rel="stylesheet" href="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/Control.FullScreen.css">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.control.css">
+    <link rel="stylesheet" href="http://apps.socib.es/Leaflet.TimeDimension/examples/css/style.css">
+	<style>
+        a.leaflet-control-timecontrol.timecontrol-date {
+            width: 120px;
+            padding-left: 30px !important;
+            font-weight: bold;
+        }
+		
+		.info {
+			padding: 6px 8px;
+			font: 14px/16px Arial, Helvetica, sans-serif;
+			background: white;
+			background: rgba(255,255,255,0.8);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+		.info h4 {
+			margin: 0 0 5px;
+			color: #777;
+		}
+        </style>
+</head>
+<body>
+	<div id="map" style="width: 900px; height: 600px"></div>
+	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.1.1/chroma.min.js"></script>	
+	<script type="text/javascript"	src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+	<script type="text/javascript" src="countries.geo.json.js"></script>
+	<script type="text/javascript" src="countryEventDataOptimal.json.js"></script>
+	
+	 <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+     <script type="text/javascript" src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+
+        
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.min.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/heatmap.min.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/leaflet-plugins/leaflet-heatmap.js"></script>
+        <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/DateFormat.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/vendors/iso8601.js"></script>
+
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.util.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.layer.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.layer.wms.js"></script>
+        <!-- <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension./src/leaflet.timedimension.layer.geojson.js"></script> -->
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.player.js"></script>
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/src/leaflet.timedimension.control.js"></script>        
+        <script type="text/javascript" src="http://apps.socib.es/Leaflet.TimeDimension/examples/js/baselayers.js"></script>
+        <!-- <script type="text/javascript" src="js/example12.js"></script> -->
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+		
+		<script>
+		var timeEventDict = {};
+		for (i in timeEventData)
+		{
+			timeEventDict[timeEventData[i].timePeriod] = timeEventData[i].data
+		}		
+		//chromaScale = chroma.bezier(['yellow', 'red', 'black']).scale().domain([0,20000]);		
+		//chromaScale = chroma.scale(['yellow', 'red', 'black']).domain([0,1000]);
+		//chromaScale = chroma.scale(['#D5E3FF', '#003171']).domain([0,20000]);
+		chromaScale = chroma.scale(['#ffffe0', '#ffe0a9', '#ffbe84', '#ff986d', '#f47361', '#e35056', '#cb2f44', '#ae112a', '#8b0000']).mode('lab').correctLightness().domain([0,20000]);
+		//chromaScale = chroma.scale(['lightyellow', 'navy']).domain([0,20000]);
+		
+		
+		var currentPeriodData = null //timeEventDict["Jan2015"]	
+		var currentGeoJsonLayer = null
+		
+		function getEventCount(countryCode) {
+			for (var i in currentPeriodData)
+			{
+				if(currentPeriodData[i].country == countryCode)
+				{				
+					return currentPeriodData[i].eventCount
+				}				
+			}			
+			return 0
+		}
+		
+		//get color depending on population density value
+		function getColor(d) {
+			//alert("col")
+			return chromaScale(d)			
+		}
+
+		function style(feature) {
+			//alert("a")
+			return {
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7,
+				fillColor: getColor(getEventCount(feature.id))
+				
+			};
+		}
+		
+		
+		function highlightFeature(e)
+		{
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+			
+			info.update(layer.feature.properties.name, getEventCount(layer.feature.id));
+		}
+		
+		function resetHighlight(e)
+		{
+			currentGeoJsonLayer.resetStyle(e.target);
+			info.update();
+		}
+		
+		function zoomToFeature(e) {
+			map.fitBounds(e.target.getBounds());
+		}
+		
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: zoomToFeature
+			});
+		}
+		
+
+</script>
+		
+		
+		<Script>
+		L.TimeDimension.Layer.EventMap = L.TimeDimension.Layer.extend({
+				
+		
+		initialize: function(options) {
+			var layer = L.geoJson(countriesData, {style: style, onEachFeature: onEachFeature});
+			currentGeoJsonLayer = layer
+			L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
+			this._currentLoadedTime = 0;
+			this._currentTimeData = null;			
+			this._period = "P1M";						
+		},
+		
+		
+		onAdd: function(map) {
+			//alert("b")
+			L.TimeDimension.Layer.prototype.onAdd.call(this, map);
+			if (this._timeDimension) {				
+				//this._getDataForTime(this._timeDimension.getCurrentTime());
+				this._getDataForTime("2015-01-01");
+			}
+		},
+		
+		_onNewTimeLoading: function(ev) {
+			this._getDataForTime(ev.time);
+			return;
+		},
+		
+
+		isReady: function(time) {
+			//return true
+			return (this._currentLoadedTime == time);
+		},
+		
+		_update: function() {
+			if (!this._map)
+				return;
+			
+			//var layer = L.geoJson(this._currentTimeData, this._baseLayer.options);
+			var layer = L.geoJson(countriesData,  {style: style, onEachFeature: onEachFeature});
+			currentGeoJsonLayer = layer
+			
+			if (this._currentLayer) {
+				this._map.removeLayer(this._currentLayer);
+			}
+			
+			layer.addTo(this._map);
+			this._currentLayer = layer;
+			return true;
+		},
+
+		_getDataForTime: function(time) {
+			if (!this._map) {
+				return;
+			}
+			var d = new Date(time);			
+			currentPeriodData = timeEventDict[d.format("mmmyyyy", true)]			
+			
+			this._currentLoadedTime = time;
+			if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
+			this._update();
+			}			
+		}
+
+	});
+
+	L.timeDimension.layer.eventmap = function(options) {
+		return new L.TimeDimension.Layer.EventMap(options);
+	};
+		</Script>
+	
+	
+	<script>
+
+		
+	
+
+		//var map = L.map('map').setView([51.505, -0.09], 2);
+		
+		//var currentTime = new Date();
+		//currentTime.setUTCDate(1, 0, 0, 0, 0);
+		var map = L.map('map', {
+			zoom: 2,
+			fullscreenControl: true,
+			timeDimension: true,    
+			timeDimensionOptions: {
+				timeInterval: "1979-01-01/2015-12-01" ,
+				period: "P1M",
+				loadingTimeout: 10,
+				currentTime: "2015-01-01"
+			},
+			center: [51.505, -0.09],
+		});
+		
+		//var layer = new L.StamenTileLayer( "toner") ;
+		var layer = new L.StamenTileLayer( "watercolor") ;
+		map.addLayer( layer);
+		
+		/*L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'mapbox.streets'
+		}).addTo(map);*/
+				
+		
+		var eventLayer = L.timeDimension.layer.eventmap({});
+		eventLayer.addTo(map);
+		
+		L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
+			_getDisplayDateFormat: function(date){
+				return date.format("mmmm yyyy");
+			}    
+		});
+		var timeDimensionControl = new L.Control.TimeDimensionCustom({
+			playerOptions: {
+				buffer: 1,
+				minBufferReady: -1,
+				transitionTime: 0
+			}
+		});
+		map.addControl(this.timeDimensionControl);		
+
+
+	</script>
+	
+	<Script>
+			var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+			this.update();
+			return this._div;
+		};
+
+		// method that we will use to update the control based on feature properties passed
+		info.update = function (countryName, eventCount) {
+			this._div.innerHTML = '<h4>Event Count</h4>' +  (eventCount ?
+				'<b>' + countryName + '</b><br />' + '# Events '+ eventCount
+				: 'Hover over a country');
+		};
+
+		info.addTo(map);
+	</script>
+</body>
+</html>
